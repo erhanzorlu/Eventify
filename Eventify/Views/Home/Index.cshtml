@@ -1,0 +1,49 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<h2>Kullanıcı Kayıt Formu</h2>
+<form id="registerForm" asp-action="Index" asp-controller="Home" method="post">
+    <input type="text" id="UserName" name="UserName" required>
+    <input type="email" id="Email" name="Email" required>
+    <input type="text" id="FirstName" name="FirstName" required>
+    <input type="text" id="LastName" name="LastName" required>
+
+    <input type="hidden" id="Latitude" name="Latitude">
+    <input type="hidden" id="Longitude" name="Longitude">
+
+    <button type="button" onclick="getCoordinatesAndSubmitForm()">Kayıt Ol</button>
+</form>
+
+
+<script>
+    function getCoordinatesAndSubmitForm() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    // Koordinatları form alanlarına doldur
+                    document.getElementById('Latitude').value = position.coords.latitude;
+                    document.getElementById('Longitude').value = position.coords.longitude;
+
+                    console.log("Coordinates captured:", position.coords.latitude, position.coords.longitude);
+
+                    // Koordinatlar alındıktan sonra formu programatik olarak gönder
+                    document.getElementById('registerForm').submit();
+                },
+                function (error) {
+                    console.error("Geolocation error: ", error);
+                    alert("Konum bilgisi alınamadı: " + error.message);
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+
+</script>
+
+
+

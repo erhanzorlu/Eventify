@@ -1,0 +1,65 @@
+﻿@model Event
+@{
+    ViewData["Title"] = "AddEvent";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenStreetMap ile Etkinlik Ekleme</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h3>Harita Üzerinde Bir Nokta İşaretleyin</h3>
+    <form asp-action="AddEvent" asp-controller="Event" method="post">
+        <label for="Name">Etkinlik Adı:</label>
+        <input type="text" id="Name" name="Name" required><br><br>
+
+        <label for="Location">Etkinlik Lokasyonu:</label>
+        <input type="text" id="Location" name="Location" required><br><br>
+
+        <input type="hidden" id="Latitude" name="Latitude">
+        <input type="hidden" id="Longitude" name="Longitude">
+
+        <div id="map"></div>
+        <p id="coordinates">Enlem: - | Boylam: -</p>
+
+        <button type="submit">Etkinliği Ekle</button>
+    </form>
+
+    <script>
+        // Harita, İstanbul'dan başlayacak şekilde güncellendi
+        var map = L.map('map').setView([41.0082, 28.9784], 13); // İstanbul'un enlem ve boylamı
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker;
+
+        map.on('click', function (e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            document.getElementById('Latitude').value = lat;
+            document.getElementById('Longitude').value = lng;
+            document.getElementById('coordinates').innerText = 'Enlem: ' + lat + ' | Boylam: ' + lng;
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+        });
+    </script>
+</body>
+</html>
+
