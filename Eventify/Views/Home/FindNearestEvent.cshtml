@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "En Yakın Etkinliği Bul";
+}
+
+<h3>Kendinize En Yakın Etkinliği Bulun</h3>
+<form asp-action="FindNearestEvent" asp-controller="Home" method="post">
+    <label for="latitudeInput">Enlem:</label>
+    <input type="text" id="latitudeInput" name="Latitude" placeholder="Enlem girin" required><br><br>
+
+    <label for="longitudeInput">Boylam:</label>
+    <input type="text" id="longitudeInput" name="Longitude" placeholder="Boylam girin" required><br><br>
+
+    <button type="submit">En Yakın Etkinliği Bul</button>
+</form>
+
+<div id="eventDetails">
+    @if (ViewBag.NearestEvent != null)
+    {
+        <h4>En Yakın Etkinlik:</h4>
+        <p>Adı: @ViewBag.NearestEvent.Name</p>
+        <p>Konum: @ViewBag.NearestEvent.Location</p>
+        <p>Mesafe: @ViewBag.NearestEvent.Distance Metre</p>
+    }
+    else if (ViewBag.Message != null)
+    {
+        <p>@ViewBag.Message</p>
+    }
+</div>

@@ -1,6 +1,6 @@
-﻿@model Event
+﻿@model Eventify.Models.Event
 @{
-    ViewData["Title"] = "AddEvent";
+    ViewData["Title"] = "Add Event";
 }
 
 <!DOCTYPE html>
@@ -15,16 +15,52 @@
             width: 100%;
             margin-bottom: 20px;
         }
+        #exchange-rates {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+
+        <div id="exchange-rates">
+        <strong>Güncel Kurlar:</strong>
+        <p>Dolar (USD): <span id="usd-rate">Yükleniyor...</span> TL</p>
+        <p>Euro (EUR): <span id="eur-rate">Yükleniyor...</span> TL</p>
+    </div>
     <h3>Harita Üzerinde Bir Nokta İşaretleyin</h3>
     <form asp-action="AddEvent" asp-controller="Event" method="post">
         <label for="Name">Etkinlik Adı:</label>
         <input type="text" id="Name" name="Name" required><br><br>
 
+        <label for="StartDate">Başlangıç Tarihi:</label>
+        <input type="datetime-local" id="StartDate" name="StartDate" required><br><br>
+
+        <label for="EndDate">Bitiş Tarihi:</label>
+        <input type="datetime-local" id="EndDate" name="EndDate"><br><br>
+
         <label for="Location">Etkinlik Lokasyonu:</label>
-        <input type="text" id="Location" name="Location" required><br><br>
+        <input type="text" id="Location" name="Location" oninput="parseLocation()" required><br><br>
+
+        <label for="City">İl:</label>
+        <input type="text" id="City" name="City" readonly><br><br>
+
+        <label for="District">İlçe:</label>
+        <input type="text" id="District" name="District" readonly><br><br>
+
+        <label for="IsFree">Ücretsiz mi?</label>
+        <input type="checkbox" id="IsFree" name="IsFree"><br><br>
+
+        <label for="Price">Fiyat:</label>
+        <input type="number" id="Price" name="Price" step="0.01" min="0"><br><br>
+
+        <label for="MaxParticipants">Katılımcı Sınırı:</label>
+        <input type="number" id="MaxParticipants" name="MaxParticipants" min="1"><br><br>
+
+        <label for="AgeLimit">Yaş Sınırı:</label>
+        <input type="number" id="AgeLimit" name="AgeLimit" min="0"><br><br>
+
+        <label for="Description">Açıklama:</label>
+        <textarea id="Description" name="Description" required></textarea><br><br>
 
         <input type="hidden" id="Latitude" name="Latitude">
         <input type="hidden" id="Longitude" name="Longitude">
@@ -36,7 +72,6 @@
     </form>
 
     <script>
-        // Harita, İstanbul'dan başlayacak şekilde güncellendi
         var map = L.map('map').setView([41.0082, 28.9784], 13); // İstanbul'un enlem ve boylamı
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -58,8 +93,88 @@
             } else {
                 marker = L.marker(e.latlng).addTo(map);
             }
+
+            // Nominatim API ile adresi al ve il/ilçe bilgilerini ayır
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        document.getElementById('Location').value = data.display_name;
+
+                        // Adresi bölerek il ve ilçe bilgilerini ayır
+                        parseLocation();
+                    } else {
+                        document.getElementById('Location').value = 'Adres bulunamadı';
+                        document.getElementById('City').value = 'İl bulunamadı';
+                        document.getElementById('District').value = 'İlçe bulunamadı';
+                    }
+                })
+                .catch(error => {
+                    console.error('Adres alınırken hata oluştu:', error);
+                    document.getElementById('Location').value = 'Adres alınırken hata oluştu';
+                    document.getElementById('City').value = 'Hata';
+                    document.getElementById('District').value = 'Hata';
+                });
         });
+
+       function parseLocation() {
+    var location = document.getElementById('Location').value;
+
+    if (location) {
+        // Adresi virgüllerle ayır ve parçaları temizle
+        var parts = location.split(',').map(function(part) {
+            return part.trim();
+        });
+
+        // "Mahallesi" kelimesini içeren kısmı bul
+        var mahallesiIndex = parts.findIndex(function(part) {
+            return part.includes("Mahallesi");
+        });
+
+        if (mahallesiIndex !== -1 && mahallesiIndex + 2 < parts.length) {
+            // İlçe: Mahallesi'nden sonraki parça
+            var ilce = parts[mahallesiIndex + 1];
+
+            // İl: Mahallesi'nden sonraki iki parça
+            var il = parts[mahallesiIndex + 2];
+
+            document.getElementById('City').value = il;
+            document.getElementById('District').value = ilce;
+        } else if (parts.length >= 3) {
+            // "Mahallesi" yoksa, ilk virgülden sonrasını ilçe ve bir sonraki kısmı il olarak al
+            var ilce = parts[1];
+            var il = parts[2];
+
+            document.getElementById('City').value = il;
+            document.getElementById('District').value = ilce;
+        } else {
+            document.getElementById('City').value = 'İl bulunamadı';
+            document.getElementById('District').value = 'İlçe bulunamadı';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Döviz kurları API'sinden verileri çek
+    fetch('https://api.exchangerate-api.com/v4/latest/USD') // Örnek API URL'si
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.rates) {
+                // API'den gelen USD ve EUR kurlarını doğrudan göster
+                document.getElementById('usd-rate').innerText = data.rates.TRY.toFixed(2) + ' TL';
+                document.getElementById('eur-rate').innerText = (data.rates.TRY / data.rates.EUR).toFixed(2) + ' TL';
+            } else {
+                document.getElementById('usd-rate').innerText = 'Veri alınamadı';
+                document.getElementById('eur-rate').innerText = 'Veri alınamadı';
+            }
+        })
+        .catch(error => {
+            console.error('Döviz kurları alınırken hata oluştu:', error);
+            document.getElementById('usd-rate').innerText = 'Hata';
+            document.getElementById('eur-rate').innerText = 'Hata';
+        });
+});
+
     </script>
 </body>
 </html>
-

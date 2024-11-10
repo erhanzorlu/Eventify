@@ -1,4 +1,6 @@
 ﻿using Eventify.Models.Enums;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eventify.Models
@@ -21,6 +23,14 @@ namespace Eventify.Models
         [MaxLength(500)]
         public string Location { get; set; }
 
+        [Required]
+        [MaxLength(100)]
+        public string City { get; set; } // İl alanı
+
+        [Required]
+        [MaxLength(100)]
+        public string District { get; set; } // İlçe alanı
+
         public bool IsFree { get; set; }
 
         public decimal? Price { get; set; } // Fiyat, paralı etkinlikler için
@@ -34,6 +44,9 @@ namespace Eventify.Models
 
         [Required]
         public string Description { get; set; }
+
+        public double Latitude { get; set; } // Enlem
+        public double Longitude { get; set; } // Boylam
 
         public List<UserEvent> UserEvents { get; set; } // Katılımcılar ile ilişki
 
