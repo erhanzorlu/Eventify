@@ -48,7 +48,11 @@ namespace Eventify.Models
         public double Latitude { get; set; } // Enlem
         public double Longitude { get; set; } // Boylam
 
+        public int CategoryId { get; set; }
+        public Category Category { get; set; } // Kategori ile ilişki
+
         public List<UserEvent> UserEvents { get; set; } // Katılımcılar ile ilişki
+        public List<EventTag> EventTags { get; set; } // Katılımcılar ile ilişki
 
         // İlgili alanlar için navigation properties eklenebilir (örneğin, kategori veya organizatör)
     }
