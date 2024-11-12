@@ -31,7 +31,7 @@ namespace Eventify.Controllers
                 user.UserId = Guid.NewGuid();
                 user.CreatedAt = DateTime.UtcNow;
                 user.Gender = Models.Enums.Gender.Male;
-            user.PasswordHash = "BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);";
+            user.Password = "BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);";
 
             _context.Users.Add(user);
                 _context.SaveChanges();
@@ -48,7 +48,6 @@ namespace Eventify.Controllers
         public IActionResult AddEvent(Event newEvent)
         {
            
-                newEvent.EventId = Guid.NewGuid();
 
             _context.Events.Add(newEvent);
                 _context.SaveChanges();

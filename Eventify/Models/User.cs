@@ -6,7 +6,7 @@ namespace Eventify.Models
     {
         public Guid UserId { get; set; } // Benzersiz kullanıcı kimliği
         public string UserName { get; set; } // Kullanıcı adı
-        public string PasswordHash { get; set; } // Şifre (hashlenmiş)
+        public string Password { get; set; } 
         public string FirstName { get; set; } // İsim
         public string LastName { get; set; } // Soyisim
         public string Email { get; set; } // E-posta
@@ -19,5 +19,7 @@ namespace Eventify.Models
 
         // Kullanıcının etkinliklerle olan ilişkisi
         public ICollection<UserEvent> UserEvents { get; set; }
+        public List<UserCategory> UserCategories { get; set; }
+        public List<UserTag> UserTags { get; set; }
     }
 }

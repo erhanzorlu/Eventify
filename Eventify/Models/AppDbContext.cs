@@ -9,12 +9,18 @@ namespace Eventify.Models
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UserCategory> UserCategories { get; set; }
+        public DbSet<UserTag> UserTags { get; set; }
+
         public DbSet<Event> Events { get; set; }
         public DbSet<UserEvent> UserEvents { get; set; }
+        public DbSet<EventTag> EventTags { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
             // Çoktan çoğa ilişkiyi yapılandırma
             modelBuilder.Entity<UserEvent>()

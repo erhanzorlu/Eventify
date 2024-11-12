@@ -8,7 +8,7 @@ namespace Eventify.Models
     public class Event
     {
         [Key]
-        public Guid EventId { get; set; }
+        public int EventId { get; set; }
 
         [Required]
         [MaxLength(100)]
